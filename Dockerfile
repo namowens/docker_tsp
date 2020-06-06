@@ -16,7 +16,7 @@ RUN git clone --progress https://github.com/liberal-boy/tls-shunt-proxy.git && \
 # STEP 2 build a small image
 
 FROM alpine
-LABEL maintainer="Namowen <namowen@protonmail.com>"
+LABEL maintainer="namowens <namowen@protonmail.com>"
 
 COPY --from=builder /tmp/tsp /tmp
 COPY config.yaml /etc/tls-shunt-proxy/config.yaml
