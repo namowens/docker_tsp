@@ -1,5 +1,5 @@
 # Dockerfile for tls-shunt-proxy based alpine
-# Copyright (C) 2019 - 2020 SheaYone
+# Copyright (C) 2019 - 2020 namowens
 # Reference URL:
 # https://github.com/liberal-boy/tls-shunt-proxy
 
@@ -22,7 +22,7 @@ COPY --from=builder /tmp/tsp /tmp
 COPY config.yaml /etc/tls-shunt-proxy/config.yaml
 RUN apk update && apk add ca-certificates && \
     mkdir -p /usr/bin/tls-shunt-proxy && \
-    cp /tmp/tsp /usr/bin/tls-shunt-proxy/tls-shunt-proxy
+    cp /tmp/tsp /usr/bin/tls-shunt-proxy/tls-shunt-proxy && rm -f /tmp/tsp
 
 #ENTRYPOINT ["/usr/bin/tls-shunt-proxy/tls-shunt-proxy"]
 ENV PATH /usr/bin/tls-shunt-proxy:$PATH
