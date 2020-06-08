@@ -22,8 +22,9 @@ COPY --from=builder /tmp/tsp /tmp
 COPY config.yaml /etc/tls-shunt-proxy/config.yaml
 RUN apk update && apk add ca-certificates && \
     mkdir -p /usr/bin/tls-shunt-proxy && \
-    cp /tmp/tsp /usr/bin/tls-shunt-proxy/tls-shunt-proxy && rm -f /tmp/tsp
+    cp /tmp/tsp /usr/bin/tls-shunt-proxy/tls-shunt-proxy
 
 #ENTRYPOINT ["/usr/bin/tls-shunt-proxy/tls-shunt-proxy"]
 ENV PATH /usr/bin/tls-shunt-proxy:$PATH
+WORKDIR /etc/ssl/tls-shunt-proxy
 CMD ["tls-shunt-proxy", "-config", "/etc/tls-shunt-proxy/config.yaml"]
