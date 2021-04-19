@@ -16,7 +16,7 @@ RUN git clone --progress https://github.com/liberal-boy/tls-shunt-proxy.git . &&
 
 FROM alpine
 LABEL maintainer="namowens <namowen@protonmail.com>"
-LABEL version="0.6.1"
+LABEL version="0.7.0"
 
 COPY --from=builder /tmp/tsp /usr/bin/tls-shunt-proxy/tls-shunt-proxy
 COPY config.yaml /etc/tls-shunt-proxy/config.yaml
