@@ -4,16 +4,15 @@
 # https://github.com/liberal-boy/tls-shunt-proxy
 
 # STEP 1 build executable binary
-
-FROM golang:alpine AS builder
+FROM --platform=$BUILDPLATFORM golang:alpine AS builder
+ARG TARGETARCH
 RUN apk update && apk add --no-cache git
 WORKDIR /go/src/tls-shunt-proxy
 RUN git clone --progress https://github.com/liberal-boy/tls-shunt-proxy.git . && \
-    env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -tags "full" -ldflags "-s -w" -o /tmp/tsp && \
+    env CGO_ENABLED=0 GOOS=linux GOARCH=$TARGETARCH go build -v -tags "full" -ldflags "-s -w" -o /tmp/tsp && \
     chmod +x /tmp/tsp
 
 # STEP 2 build a small image
-
 FROM alpine
 LABEL maintainer="namowens <namowen@protonmail.com>"
 LABEL version="0.8.1"
