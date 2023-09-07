@@ -2,18 +2,15 @@ name: docker_tsp CI
 
 on:
   push:
-    branches:
-      - master
-    tags:
-      - v*.*.*
-
+    branches: [ "main" ]
+    # Publish semver tags as releases.
+    tags: [ 'v*.*.*' ]
   pull_request:
-    branches:
-      - maste
+    branches: [ "main" ]
 
 env:
   REGISTRY: ghcr.io
-  IMAGE: namowens/docker_tsp
+  IMAGE: ${{ github.repository }}
 
 jobs:
   build-and-push:
@@ -24,22 +21,25 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
+      # Setup QEMU
+      # https://github.com/marketplace/actions/docker-setup-buildx#with-qemu
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v2
+      
+      # Workaround: https://github.com/docker/build-push-action/issues/461
+      - name: Setup Docker buildx
+        uses: docker/setup-buildx-action@v2
+        
+      # Cache for better building performance
       - name: Cache Docker layers
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /tmp/.buildx-cache
           key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-buildx-
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v1
 
       - name: Inspect builder
         run: |
@@ -49,18 +49,25 @@ jobs:
           echo "Flags:     ${{ steps.buildx.outputs.flags }}"
           echo "Platforms: ${{ steps.buildx.outputs.platforms }}"
 
-      - name: Log in to the Container registry
-        uses: docker/login-action@v1
+      # Login against a Docker registry except on PR
+      # https://github.com/docker/login-action
+      - name: Log into registry ${{ env.REGISTRY }}
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v2
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata for Docker
+      # Extract metadata (tags, labels) for Docker
+      # https://github.com/docker/metadata-action
+      - name: Extract Docker metadata
         id: meta
-        uses: docker/metadata-action@v3
+        uses: docker/metadata-action@v4
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          flavor: |
+            latest=auto
 
       - name: Build and push
         uses: docker/build-push-action@v2
